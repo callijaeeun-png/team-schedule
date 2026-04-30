@@ -156,12 +156,24 @@
 
     <!-- 구글 시트 연동용 핵심 스크립트 부분만 드립니다 -->
 <script>
-    // ⚠️ 위 1단계에서 복사한 웹 앱 URL을 여기에 넣으세요!
+    // 1. URL 설정
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxR7LuIeg7Jli84brr-h4JixDk8e5ylk_AZjEA0L04XzjBZlW-PrZt9y1IuwkEtOGI/exec";
 
+    // 2. 변수들
     window.members = [];
+    window.tasks = [];
+    // ... 나머지 변수들 ...
+
+    // 3. 화면을 그리는 함수들 (이것들이 먼저 정의되어야 함)
+    function renderDaily() {
+        // 기존에 있던 renderDaily 코드 내용들...
+    }
     
-    // 데이터 불러오기
+    function renderAll() {
+        // 기존에 있던 renderAll 코드 내용들...
+    }
+
+    // 4. 데이터를 가져오는 함수 (마지막에 실행)
     async function loadData() {
         try {
             const response = await fetch(SCRIPT_URL, {
@@ -169,38 +181,23 @@
                 body: JSON.stringify({ action: "load" })
             });
             const text = await response.text();
-            window.members = JSON.parse(text);
-            renderDaily(); // 화면 그리기 함수 호출
-            document.getElementById('sync-status').innerText = "✅ 구글 시트 실시간 연동 중";
+            const fullData = JSON.parse(text);
+            
+            window.members = fullData.members || [];
+            window.tasks = fullData.tasks || [];
+            
+            document.getElementById('loading-overlay').classList.add('hidden');
+            
+            // 이제 위에서 정의한 함수를 부르면 에러가 안 납니다!
+            renderDaily(); 
+            renderAll();
         } catch (e) {
-            console.error("로딩 실패", e);
+            console.error(e);
         }
     }
 
-    // 데이터 저장하기
-    async function saveData() {
-        await fetch(SCRIPT_URL, {
-            method: "POST",
-            body: JSON.stringify({
-                action: "save",
-                value: JSON.stringify(window.members)
-            })
-        });
-    }
-
-    // 인원 추가 시 호출
-    async function handleAddMember(e) {
-        e.preventDefault();
-        // ... (기존 이름/팀 가져오는 로직)
-        window.members.push(newMember);
-        await saveData(); // 구글 시트에 저장
-        loadData(); // 다시 불러오기
-    }
-    
-    // 초기 실행
+    // 실행!
     loadData();
-    // 30초마다 자동 새로고침 (실시간 동기화)
-    setInterval(loadData, 30000);
 </script>
 </body>
 </html>
