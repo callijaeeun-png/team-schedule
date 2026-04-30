@@ -40,12 +40,12 @@
                         팀 스케줄 관리
                     </h1>
                     <p id="sync-status" class="text-slate-500 mt-3 font-medium text-lg flex items-center gap-2">
-                        <span class="inline-block w-2.5 h-2.5 bg-slate-300 rounded-full animate-pulse"></span>
-                        서버 연결 확인 중...
+                        <span id="sync-dot" class="inline-block w-2.5 h-2.5 bg-slate-300 rounded-full"></span>
+                        <span id="sync-text">서버 연결 확인 중...</span>
                     </p>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
-                    <select id="team-filter" onchange="window.renderAll()" class="bg-slate-50 border border-slate-200 px-5 py-2.5 rounded-xl text-sm font-bold outline-none cursor-pointer hover:bg-slate-100 transition-all">
+                    <select id="team-filter" onchange="renderAll()" class="bg-slate-50 border border-slate-200 px-5 py-2.5 rounded-xl text-sm font-bold outline-none cursor-pointer hover:bg-slate-100 transition-all">
                         <option value="전체">전체 인원 현황</option>
                         <option value="산업팀">산업팀 명단</option>
                         <option value="경제팀">경제팀 명단</option>
@@ -94,9 +94,9 @@
 
             <div id="calendar-view" class="hidden space-y-6">
                 <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm flex justify-between items-center">
-                    <button onclick="window.changeCalendarMonth(-1)" class="p-3 hover:bg-slate-100 rounded-full transition-all"><i data-lucide="chevron-left"></i></button>
+                    <button onclick="changeCalendarMonth(-1)" class="p-3 hover:bg-slate-100 rounded-full transition-all"><i data-lucide="chevron-left"></i></button>
                     <h2 id="calendar-title" class="text-2xl font-black text-slate-900">2026년 05월</h2>
-                    <button onclick="window.changeCalendarMonth(1)" class="p-3 hover:bg-slate-100 rounded-full transition-all"><i data-lucide="chevron-right"></i></button>
+                    <button onclick="changeCalendarMonth(1)" class="p-3 hover:bg-slate-100 rounded-full transition-all"><i data-lucide="chevron-right"></i></button>
                 </div>
                 <div class="bg-white rounded-[2rem] border border-slate-200 shadow-2xl overflow-hidden">
                     <div class="calendar-grid bg-slate-50 border-b border-slate-200 text-xs font-black p-4">
@@ -121,7 +121,7 @@
     <div id="add-member-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md flex items-center justify-center z-50 hidden p-4">
         <div class="bg-white rounded-[2.5rem] p-10 w-full max-w-md shadow-2xl">
             <div class="flex justify-between items-center mb-10"><h2 class="text-3xl font-black text-slate-900">팀원 등록</h2><button onclick="closeModal('add-member-modal')"><i data-lucide="x" class="text-slate-400"></i></button></div>
-            <form id="add-member-form" onsubmit="window.handleAddMember(event)" class="space-y-8">
+            <form onsubmit="handleAddMember(event)" class="space-y-8">
                 <div><label class="block text-xs font-black text-slate-400 mb-3 ml-1 uppercase">이름</label><input type="text" id="new-member-name" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 outline-none focus:ring-4 focus:ring-blue-100 font-bold" placeholder="성함을 입력하세요"></div>
                 <div><label class="block text-xs font-black text-slate-400 mb-3 ml-1 uppercase">소속 팀 (중복 가능)</label>
                     <div class="grid grid-cols-2 gap-4">
@@ -133,12 +133,13 @@
             </form>
         </div>
     </div>
+
     <div id="add-task-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md flex items-center justify-center z-50 hidden p-4">
         <div class="bg-white rounded-[2.5rem] p-10 w-full max-w-md shadow-2xl">
             <div class="flex justify-between items-center mb-8"><h2 class="text-2xl font-black text-slate-900">새 일정 추가</h2><button onclick="closeModal('add-task-modal')"><i data-lucide="x" class="text-slate-400"></i></button></div>
-            <form id="add-task-form" onsubmit="window.handleAddTask(event)" class="space-y-5">
+            <form onsubmit="handleAddTask(event)" class="space-y-5">
                 <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block text-[10px] font-black text-slate-400 mb-2 ml-1 uppercase">일자</label><input type="date" id="task-date" min="2026-05-01" max="2026-12-31" value="2026-05-01" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm"></div>
+                    <div><label class="block text-[10px] font-black text-slate-400 mb-2 ml-1 uppercase">일자</label><input type="date" id="task-date" value="2026-05-01" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm"></div>
                     <div><label class="block text-[10px] font-black text-slate-400 mb-2 ml-1 uppercase">시간</label><input type="time" id="task-time" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 outline-none focus:ring-2 focus:ring-indigo-500 font-bold text-sm"></div>
                 </div>
                 <div><label class="block text-[10px] font-black text-slate-400 mb-2 ml-1 uppercase">일정 제목</label><input type="text" id="task-title" required class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3 outline-none focus:ring-2 focus:ring-indigo-500 font-bold" placeholder="어떤 일정인가요?"></div>
@@ -147,6 +148,7 @@
             </form>
         </div>
     </div>
+
     <div id="delete-confirm-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-md flex items-center justify-center z-[60] hidden p-4">
         <div class="bg-white rounded-[2rem] p-8 w-full max-w-sm shadow-2xl text-center"><div class="flex justify-center mb-6"><div class="p-4 bg-red-100 text-red-600 rounded-full"><i data-lucide="trash-2" class="w-8 h-8"></i></div></div>
             <h3 class="text-2xl font-black text-slate-900 mb-2">삭제 확인</h3><p id="delete-target-name" class="text-slate-500 font-medium mb-8">정말로 삭제하시겠습니까?</p>
@@ -154,26 +156,17 @@
         </div>
     </div>
 
-    <!-- 구글 시트 연동용 핵심 스크립트 부분만 드립니다 -->
 <script>
-    // 1. URL 설정
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxR7LuIeg7Jli84brr-h4JixDk8e5ylk_AZjEA0L04XzjBZlW-PrZt9y1IuwkEtOGI/exec";
 
-    // 2. 변수들
     window.members = [];
     window.tasks = [];
-    // ... 나머지 변수들 ...
+    window.currentDay = '월';
+    window.viewMode = 'daily';
+    window.calendarYear = 2026;
+    window.calendarMonth = 5;
 
-    // 3. 화면을 그리는 함수들 (이것들이 먼저 정의되어야 함)
-    function renderDaily() {
-        // 기존에 있던 renderDaily 코드 내용들...
-    }
-    
-    function renderAll() {
-        // 기존에 있던 renderAll 코드 내용들...
-    }
-
-    // 4. 데이터를 가져오는 함수 (마지막에 실행)
+    // --- 데이터 관리 (구글 시트 연동) ---
     async function loadData() {
         try {
             const response = await fetch(SCRIPT_URL, {
@@ -184,20 +177,196 @@
             const fullData = JSON.parse(text);
             
             window.members = fullData.members || [];
-            window.tasks = fullData.tasks || [];
+            window.tasks = (fullData.tasks || []).sort((a,b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
             
             document.getElementById('loading-overlay').classList.add('hidden');
+            document.getElementById('sync-dot').className = "inline-block w-2.5 h-2.5 bg-emerald-500 rounded-full";
+            document.getElementById('sync-text').innerText = "실시간 서버 연결됨";
+            document.getElementById('badge-status').className = "bg-emerald-600 text-white px-6 py-3 rounded-2xl flex items-center gap-3 shadow-lg font-bold text-sm";
+            document.getElementById('badge-status').innerHTML = '<i data-lucide="wifi"></i> 실시간 서버 동기화 활성';
             
-            // 이제 위에서 정의한 함수를 부르면 에러가 안 납니다!
-            renderDaily(); 
-            renderAll();
+            switchView(window.viewMode);
         } catch (e) {
             console.error(e);
+            document.getElementById('loading-text').innerText = "서버 연결 오류. 다시 시도 중...";
+            setTimeout(loadData, 5000);
         }
     }
 
-    // 실행!
+    async function saveData() {
+        try {
+            const dataToSave = { members: window.members, tasks: window.tasks };
+            await fetch(SCRIPT_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "save", value: JSON.stringify(dataToSave) })
+            });
+        } catch (e) {
+            alert("데이터 저장 실패. 인터넷 연결을 확인하세요.");
+        }
+    }
+
+    // --- UI 기능 ---
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+    function switchView(m) {
+        window.viewMode = m;
+        ['daily', 'weekly', 'tasks', 'calendar'].forEach(t => {
+            document.getElementById(`tab-${t}`).className = t === m ? "pb-4 text-lg md:text-xl font-black transition-all tab-active" : "pb-4 text-lg md:text-xl font-black text-slate-400 hover:text-slate-600 transition-all";
+            document.getElementById(`${t}-view`).classList.toggle('hidden', t !== m);
+        });
+        renderAll();
+    }
+
+    function renderAll() {
+        if (window.viewMode === 'daily') renderDaily();
+        else if (window.viewMode === 'weekly') renderWeekly();
+        else if (window.viewMode === 'tasks') renderTasks();
+        else if (window.viewMode === 'calendar') renderCalendar();
+        lucide.createIcons();
+    }
+
+    // --- 상세 렌더링 로직 ---
+    function getIntensity(count, total) {
+        if (count === 0) return 'bg-slate-50 text-slate-300';
+        const r = count / (total || 1);
+        if (r >= 0.8) return 'bg-blue-600 text-white';
+        if (r >= 0.5) return 'bg-blue-400 text-white';
+        if (r >= 0.2) return 'bg-blue-200 text-blue-800';
+        return 'bg-blue-100 text-blue-700';
+    }
+
+    function renderDaily() {
+        const days = ['월', '화', '수', '목', '금', '토', '일'];
+        document.getElementById('day-selector').innerHTML = days.map(d => `<button onclick="window.currentDay='${d}'; renderDaily(); lucide.createIcons();" class="px-7 py-3 rounded-2xl font-black ${window.currentDay === d ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'bg-white text-slate-500 hover:bg-slate-50'}">${d}요일</button>`).join('');
+        
+        const filter = document.getElementById('team-filter').value;
+        const filtered = filter === '전체' ? window.members : window.members.filter(m => filter === '미소속' ? (m.teams||[]).length===0 : (m.teams||[]).includes(filter));
+        const hours = Array.from({length:16}, (_,i)=>i+9);
+        
+        let html = `<table class="w-full"><thead><tr class="bg-slate-50 border-b border-slate-200"><th class="p-6 text-left font-black text-slate-400 w-72 uppercase tracking-widest text-[10px]">명단 / ${window.currentDay}요일</th>${hours.map(h => `<th class="p-2 text-[10px] font-black text-slate-400 text-center">${h}:00</th>`).join('')}</tr></thead><tbody>`;
+        
+        // 요약행
+        html += `<tr class="bg-blue-50/50 border-b-2 border-blue-100"><td class="p-6 font-black text-blue-700 flex items-center gap-2"><i data-lucide="users" class="w-4 h-4"></i> 요약</td>`;
+        hours.forEach(h => {
+            const avail = filtered.filter(m => (m.schedule[window.currentDay] || []).includes(h));
+            html += `<td class="p-1"><div data-tooltip="${avail.length > 0 ? '가능: ' + avail.map(m=>m.name).join(', ') : '없음'}" class="cell-tooltip w-full h-16 flex items-center justify-center rounded-2xl font-black ${getIntensity(avail.length, filtered.length)}">${avail.length}</div></td>`;
+        });
+        html += `</tr><tr class="h-8"><td colspan="17"></td></tr>`;
+
+        // 팀원행
+        filtered.forEach(m => {
+            const sched = m.schedule[window.currentDay] || [];
+            html += `<tr class="border-b border-slate-50 group hover:bg-slate-50/30 transition-all"><td class="p-6 border-r relative flex items-center justify-between"><div><div class="flex items-center gap-2"><span class="font-black text-slate-800">${m.name}</span></div><div class="text-[10px] text-slate-400 font-bold mt-1 tracking-widest">${(m.teams||[]).join(', ')||'미소속'}</div></div><button onclick="requestDelete('${m.id}', '${m.name}', 'member')" class="p-2 text-slate-200 hover:text-red-500 rounded-xl opacity-0 group-hover:opacity-100 transition-all"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>`;
+            hours.forEach(h => {
+                html += `<td class="p-1"><button onclick="toggleTime('${m.id}', '${window.currentDay}', ${h})" class="w-full h-12 rounded-2xl border-2 ${sched.includes(h) ? 'bg-blue-600 border-blue-700 shadow-xl' : 'bg-white border-slate-100 hover:border-blue-200'} transition-all"></button></td>`;
+            });
+            html += `</tr>`;
+        });
+        document.getElementById('daily-schedule-table').innerHTML = html + `</tbody></table>`;
+    }
+
+    function renderWeekly() {
+        const filter = document.getElementById('team-filter').value;
+        const filtered = filter === '전체' ? window.members : window.members.filter(m => filter === '미소속' ? (m.teams||[]).length===0 : (m.teams||[]).includes(filter));
+        const hours = Array.from({length:16}, (_,i)=>i+9); const days = ['월', '화', '수', '목', '금', '토', '일'];
+        let html = `<table class="w-full"><thead><tr class="bg-slate-50 border-b border-slate-200"><th class="p-6 text-left font-black text-slate-400 w-40 uppercase tracking-widest text-[10px]">주간 리포트</th>${hours.map(h => `<th class="p-2 text-[10px] font-black text-slate-400 text-center">${h}:00</th>`).join('')}</tr></thead><tbody>`;
+        days.forEach(d => {
+            html += `<tr class="border-b border-slate-50"><td class="p-6 font-black text-slate-700 bg-slate-50/10 text-center">${d}</td>`;
+            hours.forEach(h => {
+                const avail = filtered.filter(m => (m.schedule[d] || []).includes(h));
+                html += `<td class="p-1"><div data-tooltip="${avail.length > 0 ? avail.map(m => m.name).join(', ') : '없음'}" class="cell-tooltip w-full h-16 flex items-center justify-center rounded-2xl font-black ${getIntensity(avail.length, filtered.length)}">${avail.length}</div></td>`;
+            });
+            html += `</tr>`;
+        });
+        document.getElementById('weekly-summary-table').innerHTML = html + `</tbody></table>`;
+    }
+
+    function renderTasks() {
+        const container = document.getElementById('task-list-container');
+        if (window.tasks.length === 0) { container.innerHTML = `<div class="p-20 text-center bg-white rounded-3xl border border-slate-200 text-slate-400 font-bold italic">등록된 일정이 없습니다.</div>`; return; }
+        container.innerHTML = window.tasks.map(t => `
+            <div id="task-item-${t.id}" class="task-item bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm group hover:border-indigo-200 transition-all cursor-pointer" onclick="toggleTaskDetail('${t.id}')">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-6">
+                        <div class="text-center bg-indigo-50 px-4 py-2 rounded-2xl border border-indigo-100 min-w-[100px]"><p class="text-[10px] font-black text-indigo-400 uppercase">${t.date.split('-')[0]}</p><p class="text-lg font-black text-indigo-700">${t.date.split('-')[1]}.${t.date.split('-')[2]}</p></div>
+                        <div><div class="flex items-center gap-2 mb-1"><p class="text-sm font-black text-slate-400 flex items-center gap-1"><i data-lucide="clock" class="w-3 h-3"></i> ${t.time}</p></div><h4 class="text-xl font-black text-slate-800">${t.title}</h4></div>
+                    </div>
+                    <div class="flex items-center gap-2"><button onclick="event.stopPropagation(); requestDelete('${t.id}', '${t.title}', 'task')" class="p-3 text-slate-200 hover:text-red-500 rounded-xl opacity-0 group-hover:opacity-100 transition-all hover:bg-red-50"><i data-lucide="trash-2" class="w-5 h-5"></i></button><i data-lucide="chevron-down" class="chevron-icon w-5 h-5 text-slate-300"></i></div>
+                </div>
+                <div class="task-memo-content"><div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 mt-2"><p class="text-slate-700 text-sm font-medium whitespace-pre-wrap leading-relaxed">${t.memo || '상세 메모가 없습니다.'}</p></div></div>
+            </div>`).join('');
+    }
+
+    function renderCalendar() {
+        document.getElementById('calendar-title').innerText = `${window.calendarYear}년 ${window.calendarMonth.toString().padStart(2, '0')}월`;
+        const gridBody = document.getElementById('calendar-grid-body'); gridBody.innerHTML = '';
+        const firstDay = new Date(window.calendarYear, window.calendarMonth - 1, 1).getDay();
+        const daysInMonth = new Date(window.calendarYear, window.calendarMonth, 0).getDate();
+        for (let i = 0; i < firstDay; i++) { const emptyCell = document.createElement('div'); emptyCell.className = 'calendar-day bg-slate-50/30'; gridBody.appendChild(emptyCell); }
+        for (let d = 1; d <= daysInMonth; d++) {
+            const dateStr = `${window.calendarYear}-${window.calendarMonth.toString().padStart(2, '0')}-${d.toString().padStart(2, '0')}`;
+            const dayTasks = window.tasks.filter(t => t.date === dateStr);
+            const cell = document.createElement('div'); cell.className = 'calendar-day bg-white p-3 flex flex-col gap-1.5 overflow-y-auto cursor-pointer border hover:bg-slate-50 transition-all';
+            cell.onclick = () => { if (dayTasks.length > 0) switchView('tasks'); };
+            const dateNum = document.createElement('span'); dateNum.className = `font-black text-sm ${new Date(dateStr).getDay() === 0 ? 'text-red-500' : (new Date(dateStr).getDay() === 6 ? 'text-blue-500' : 'text-slate-700')}`; dateNum.innerText = d; cell.appendChild(dateNum);
+            dayTasks.forEach(task => { const taskTag = document.createElement('div'); taskTag.className = 'text-[9px] bg-indigo-50 text-indigo-700 p-1 rounded font-black truncate border border-indigo-100'; taskTag.innerText = `[${task.time}] ${task.title}`; cell.appendChild(taskTag); });
+            gridBody.appendChild(cell);
+        }
+    }
+
+    // --- 이벤트 핸들러 ---
+    async function handleAddMember(e) {
+        e.preventDefault();
+        const name = document.getElementById('new-member-name').value;
+        const teams = Array.from(document.querySelectorAll('input[name="team"]:checked')).map(cb => cb.value);
+        const id = 'm_' + Date.now();
+        window.members.push({ id, name, teams, schedule: {} });
+        closeModal('add-member-modal');
+        renderAll();
+        await saveData();
+    }
+
+    async function handleAddTask(e) {
+        e.preventDefault();
+        const id = 't_' + Date.now();
+        const date = document.getElementById('task-date').value;
+        const time = document.getElementById('task-time').value;
+        const title = document.getElementById('task-title').value;
+        const memo = document.getElementById('task-memo').value;
+        window.tasks.push({ id, date, time, title, memo });
+        closeModal('add-task-modal');
+        renderAll();
+        await saveData();
+    }
+
+    async function toggleTime(mid, day, hour) {
+        const m = window.members.find(x => x.id === mid);
+        if (!m.schedule[day]) m.schedule[day] = [];
+        const cur = m.schedule[day];
+        m.schedule[day] = cur.includes(hour) ? cur.filter(h => h !== hour) : [...cur, hour].sort((a,b)=>a-b);
+        renderDaily();
+        await saveData();
+    }
+
+    function requestDelete(id, name, type) {
+        document.getElementById('delete-target-name').innerText = `'${name}'을(를) 삭제하시겠습니까?`;
+        openModal('delete-confirm-modal');
+        document.getElementById('final-delete-btn').onclick = async () => {
+            if(type === 'member') window.members = window.members.filter(m => m.id !== id);
+            else window.tasks = window.tasks.filter(t => t.id !== id);
+            closeModal('delete-confirm-modal');
+            renderAll();
+            await saveData();
+        };
+    }
+
+    function toggleTaskDetail(id) { document.getElementById(`task-item-${id}`).classList.toggle('expanded'); lucide.createIcons(); }
+    function changeCalendarMonth(o) { window.calendarMonth += o; if (window.calendarMonth > 12) { window.calendarMonth = 1; window.calendarYear++; } else if (window.calendarMonth < 1) { window.calendarMonth = 12; window.calendarYear--; } renderCalendar(); }
+
+    // 시작
     loadData();
+    setInterval(loadData, 30000); // 30초마다 자동 갱신
 </script>
 </body>
 </html>
